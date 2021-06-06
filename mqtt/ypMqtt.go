@@ -13,10 +13,10 @@ type MQTTClient struct {
 } 
 
 /*******************************************************************************
-//@example
-//ch_mqtt := make(chan string, 10)
-//ch_mqtt <- "Topic::{123,123}"
-//go client.Listen(ch_mqtt)
+*   @example
+*   ch_mqtt := make(chan string, 10)
+*   ch_mqtt <- "Topic::{123,123}"
+*   go client.Listen(ch_mqtt)
 *******************************************************************************/
 func (client *MQTTClient) Listen(ch_mqtt chan string) {
 	for true {
@@ -29,9 +29,9 @@ func (client *MQTTClient) Listen(ch_mqtt chan string) {
 }
 
 /*******************************************************************************
-//@example
-//var client mqtt.MQTTClient
-//client.Connect("testID")
+*   @example
+*   var client mqtt.MQTTClient
+*   client.Connect("testID")
 *******************************************************************************/
 func (client *MQTTClient) Connect(clientID string) {
 	var url = "tcp://192.168.1.108:1883"
@@ -51,16 +51,16 @@ func (client *MQTTClient) Connect(clientID string) {
 }
 
 /*******************************************************************************
-//@example
-//client.Publish("Topic",0,"hello")
+*   @example
+*   client.Publish("Topic",0,"hello")
 *******************************************************************************/
 func (client *MQTTClient) Publish(topic string, qos byte, payload interface{}) {
 	client.client.Publish(topic, qos, false, payload)
 }
 
 /*******************************************************************************
-//@example
-//client.Subscribe("testTopic",0)
+*   @example
+*   client.Subscribe("testTopic",0)
 *******************************************************************************/
 func (client *MQTTClient) Subscribe(topic string, qos byte){
 	client.client.Subscribe(topic,qos,generalCallback)

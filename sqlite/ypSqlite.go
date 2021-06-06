@@ -13,10 +13,10 @@ type SqliteClient struct {
 }
 
 /*******************************************************************************
-//@example
-//ch_sqlite := make(chan string, 10)
-//go client.Listen(ch_sqlite)
-//ch_sqlite <- "tablename::'value1','value2'..."
+*   @example
+*   ch_sqlite := make(chan string, 10)
+*   go client.Listen(ch_sqlite)
+*   ch_sqlite <- "tablename::'value1','value2'..."
 *******************************************************************************/
 func (client *SqliteClient) Listen(ch_sqlite chan string) {
 	for true {
@@ -29,9 +29,9 @@ func (client *SqliteClient) Listen(ch_sqlite chan string) {
 }
 
 /*******************************************************************************
-//@example
-//var my sqlite.SqliteClient
-//client.Open("./test.db")
+*   @example
+*   var my sqlite.SqliteClient
+*   client.Open("./test.db")
 *******************************************************************************/
 func (client *SqliteClient) Open(filePath string) {
 	var err error
@@ -41,8 +41,8 @@ func (client *SqliteClient) Open(filePath string) {
 }
 
 /*******************************************************************************
-//@example
-//client.Close()
+*   @example
+*   client.Close()
 *******************************************************************************/
 func (client *SqliteClient) Close(filePath string) {
 	client.db.Close()
@@ -50,11 +50,15 @@ func (client *SqliteClient) Close(filePath string) {
 }
 
 /*******************************************************************************
-//@example
-//cloumns := []string{"ID INT PRIMARY KEY NOT NULL","name TEXT NOT NULL"}
-//client.CreateTable("test",cloumns)
+*   @example
+*   cloumns := []string{"ID INT PRIMARY KEY NOT NULL","name TEXT NOT NULL"}
+*   client.CreateTable("test",cloumns)
 *******************************************************************************/
 func (client *SqliteClient) CreateTable(tablename string, columns []string){
+    if !client.IsConnect {
+        fmt.Println("Database Disconnected!!!")
+        return
+    }
 	n := len(columns)
 	//sql := "CREATE TABLE test (ID INT PRIMARY KEY NOT NULL,NAME TEXT NOT NULL)" 
 	sqlStr := "CREATE TABLE " + tablename + " ("
@@ -70,10 +74,14 @@ func (client *SqliteClient) CreateTable(tablename string, columns []string){
 }
 
 /*******************************************************************************
-//@example
-//client.DeleteTable("hello")
+*   @example
+*   client.DeleteTable("hello")
 *******************************************************************************/
 func (client *SqliteClient) DeleteTable(tablename string) {
+    if !client.IsConnect {
+        fmt.Println("Database Disconnected!!!")
+        return
+    }
     //sql := "DROP TABLE test"
     sqlStr := "DROP TABLE " + tablename
     _, err := client.db.Exec(sqlStr)
@@ -81,11 +89,15 @@ func (client *SqliteClient) DeleteTable(tablename string) {
 }
 
 /*******************************************************************************
-//@example
-//values := []string{"'111'","'aaa'"}
-//client.Insert("test", values)
+*   @example
+*   values := []string{"'111'","'aaa'"}
+*   client.Insert("test", values)
 *******************************************************************************/
 func (client *SqliteClient) Insert(tablename string, values []string) int64 {
+    if !client.IsConnect {
+        fmt.Println("Database Disconnected!!!")
+        return 0
+    }
     //sql := "INSERT INTO test values(?,?)"
     n := len(values)
     sqlStr := "INSERT INTO " + tablename + " values("
@@ -109,11 +121,15 @@ func (client *SqliteClient) Insert(tablename string, values []string) int64 {
 }
 
 /*******************************************************************************
-//@example
-//aa := client.Select("test", "*", "ID = 111")
-//fmt.Println(aa)
+*   @example
+*   aa := client.Select("test", "*", "ID = 111")
+*   fmt.Println(aa)
 *******************************************************************************/
 func (client *SqliteClient) Select(tablename string, selectColumns string, condition string) []map[string]string {
+    if !client.IsConnect {
+        fmt.Println("Database Disconnected!!!")
+        return nil
+    }
     sqlStr := "SELECT " + selectColumns + " FROM " + tablename 
     if condition!="" {
         sqlStr += " WHERE " + condition
@@ -153,11 +169,15 @@ func (client *SqliteClient) Select(tablename string, selectColumns string, condi
 }
 
 /*******************************************************************************
-@example
-//aa := client.Delete("test", "ID=111")
-//fmt.Println(aa)
+*   @example
+*   aa := client.Delete("test", "ID=111")
+*   fmt.Println(aa)
 *******************************************************************************/
 func (client *SqliteClient) Delete(tablename string, condition string) int64 {
+    if !client.IsConnect {
+        fmt.Println("Database Disconnected!!!")
+        return 0
+    }
     sqlStr := "delete from " + tablename + " where "
     if condition=="" {
         return 0
@@ -184,72 +204,4 @@ func checkErr(err error) {
         fmt.Println(err)
     }
 }
-
-
-
-
-/*
-func Test() {
-    db, err := sql.Open("sqlite3", "./foo.db")
-    checkErr(err)
-	
-	//新建数据表
-	sql := "CREATE TABLE test (ID INT PRIMARY KEY NOT NULL,NAME TEXT NOT NULL)" 
-	res, err := db.Exec(sql)
-	checkErr(err)
-	fmt.Println(res)
-
-	
-	//插入数据
-    stmt, err := db.Prepare("INSERT INTO test(ID, NAME) values(?,?)")
-    checkErr(err)
-
-    res, err := stmt.Exec("222", "hello")
-    checkErr(err)
-
-    id, err := res.LastInsertId()
-    checkErr(err)
-
-    fmt.Println(id)
-
-    //更新数据
-    stmt, err := db.Prepare("update test set NAME=? where ID=?")
-    checkErr(err)
-
-    res, err := stmt.Exec("xiexie", "111")
-    checkErr(err)
-
-    affect, err := res.RowsAffected()
-    checkErr(err)
-
-    fmt.Println(affect)
-
-    //查询数据
-    rows, err := db.Query("SELECT * FROM test")
-    checkErr(err)
-
-    for rows.Next() {
-        var id int
-        var name string
-        err = rows.Scan(&id, &name)
-        checkErr(err)
-        fmt.Println(id,name)
-    }
-
-    //删除数据
-    stmt, err := db.Prepare("delete from test where ID=?")
-    checkErr(err)
-
-    res, err := stmt.Exec("111")
-    checkErr(err)
-
-    affect, err := res.RowsAffected()
-    checkErr(err)
-
-    fmt.Println(affect)
-/*	
-
-    db.Close()
-
-}*/
 
