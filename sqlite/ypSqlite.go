@@ -6,11 +6,11 @@ import (
     _ "github.com/mattn/go-sqlite3"
 )
 
-/*
+/*******************************************************************************
 //@example
 //var my sqlite.SqliteClient
 //my.Open("./test.db")
-*/
+*******************************************************************************/
 type SqliteClient struct {
 	db *sql.DB
 	IsConnect bool
@@ -28,11 +28,11 @@ func (client *SqliteClient) Close(filePath string) {
     client.IsConnect = false
 }
 
-/*
+/*******************************************************************************
 //@example
 //cloumns := []string{"ID INT PRIMARY KEY NOT NULL","name TEXT NOT NULL"}
 //client.CreateTable("test",cloumns)
-*/
+*******************************************************************************/
 func (client *SqliteClient) CreateTable(tablename string, columns []string){
 	n := len(columns)
 	//sql := "CREATE TABLE test (ID INT PRIMARY KEY NOT NULL,NAME TEXT NOT NULL)" 
@@ -48,10 +48,10 @@ func (client *SqliteClient) CreateTable(tablename string, columns []string){
 	checkErr(err)
 }
 
-/*
+/*******************************************************************************
 //@example
 //client.DeleteTable("hello")
-*/
+*******************************************************************************/
 func (client *SqliteClient) DeleteTable(tablename string) {
     //sql := "DROP TABLE test"
     sqlStr := "DROP TABLE " + tablename
@@ -59,11 +59,11 @@ func (client *SqliteClient) DeleteTable(tablename string) {
 	checkErr(err)
 }
 
-/*
+/*******************************************************************************
 //@example
 //values := []string{"111","aaa"}
 //client.Insert("test", values)
-*/
+*******************************************************************************/
 func (client *SqliteClient) Insert(tablename string, values []string) int64 {
     //sql := "INSERT INTO test values(?,?)"
     n := len(values)
@@ -87,11 +87,11 @@ func (client *SqliteClient) Insert(tablename string, values []string) int64 {
     return id
 }
 
-/*
+/*******************************************************************************
 //@example
 //aa := client.Select("test", "*", "ID = 111")
 //fmt.Println(aa)
-*/
+*******************************************************************************/
 func (client *SqliteClient) Select(tablename string, selectColumns string, condition string) []map[string]string {
     sqlStr := "SELECT " + selectColumns + " FROM " + tablename 
     if condition!="" {
@@ -131,11 +131,11 @@ func (client *SqliteClient) Select(tablename string, selectColumns string, condi
 	return slice
 }
 
-/*
+/*******************************************************************************
 @example
 //aa := client.Delete("test", "ID=111")
 //fmt.Println(aa)
-*/
+*******************************************************************************/
 func (client *SqliteClient) Delete(tablename string, condition string) int64 {
     sqlStr := "delete from " + tablename + " where "
     if condition=="" {

@@ -1,12 +1,18 @@
 package main
 
-import "gowheel/sqlite"
+import (
+	//"fmt"
+	_ "gowheel/sqlite"
+	"gowheel/mqtt"
+	"time"
+)
 
 func main(){
-	//sqlite.Test()
-	var my sqlite.SqliteClient
-	my.Open("./foo.db")
-	my.Select()
-	cloums := []string{"ID INT PRIMARY KEY NOT NULL","NAME TEXT NOT NULL"}
-	my.CreateTable("test1",cloums)
+	var my mqtt.MQTTClient
+	my.Connect("yp")
+	for{
+        time.Sleep(5 * time.Second)
+		my.Subscribe("test",0)
+		my.Publish("Topic",0,"hello")
+    }
 }
