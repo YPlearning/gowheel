@@ -4,18 +4,35 @@ import (
     "database/sql"
     "fmt"
     _ "github.com/mattn/go-sqlite3"
+    "strings"
 )
 
-/*******************************************************************************
-//@example
-//var my sqlite.SqliteClient
-//my.Open("./test.db")
-*******************************************************************************/
 type SqliteClient struct {
 	db *sql.DB
 	IsConnect bool
 }
 
+/*******************************************************************************
+//@example
+//ch_sqlite := make(chan string, 10)
+//go client.Listen(ch_sqlite)
+//ch_sqlite <- "tablename::'value1','value2'..."
+*******************************************************************************/
+func (client *SqliteClient) Listen(ch_sqlite chan string) {
+	for true {
+		str, ok := <- ch_sqlite
+		if ok {
+			mes := strings.Split(str,"::")
+            client.Insert(mes[0], []string{mes[1]})
+		}
+	}
+}
+
+/*******************************************************************************
+//@example
+//var my sqlite.SqliteClient
+//client.Open("./test.db")
+*******************************************************************************/
 func (client *SqliteClient) Open(filePath string) {
 	var err error
 	client.db, err = sql.Open("sqlite3", filePath)
@@ -23,6 +40,10 @@ func (client *SqliteClient) Open(filePath string) {
     client.IsConnect = true
 }
 
+/*******************************************************************************
+//@example
+//client.Close()
+*******************************************************************************/
 func (client *SqliteClient) Close(filePath string) {
 	client.db.Close()
     client.IsConnect = false
@@ -61,7 +82,7 @@ func (client *SqliteClient) DeleteTable(tablename string) {
 
 /*******************************************************************************
 //@example
-//values := []string{"111","aaa"}
+//values := []string{"'111'","'aaa'"}
 //client.Insert("test", values)
 *******************************************************************************/
 func (client *SqliteClient) Insert(tablename string, values []string) int64 {
@@ -69,7 +90,7 @@ func (client *SqliteClient) Insert(tablename string, values []string) int64 {
     n := len(values)
     sqlStr := "INSERT INTO " + tablename + " values("
     for i := 0; i < n; i++ {
-        sqlStr += "'" + values[i] + "'"
+        sqlStr +=  values[i] 
         if i<n-1 {
             sqlStr += ","
         }
@@ -155,6 +176,9 @@ func (client *SqliteClient) Delete(tablename string, condition string) int64 {
     return id
 }
 
+/*******************************************************************************
+*   Internal Function
+*******************************************************************************/
 func checkErr(err error) {
     if err != nil {
         fmt.Println(err)

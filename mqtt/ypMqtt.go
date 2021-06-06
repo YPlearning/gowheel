@@ -1,14 +1,32 @@
 package mqtt
 
 import (
-    mqtt "github.com/eclipse/paho.mqtt.golang"
 	"fmt"
+	"strings"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 type MQTTClient struct {
 	client mqtt.Client
 	IsConnect bool
 } 
+
+/*******************************************************************************
+//@example
+//ch_mqtt := make(chan string, 10)
+//ch_mqtt <- "Topic::{123,123}"
+//go client.Listen(ch_mqtt)
+*******************************************************************************/
+func (client *MQTTClient) Listen(ch_mqtt chan string) {
+	for true {
+		str, ok := <- ch_mqtt
+		if ok {
+			mes := strings.Split(str,"::")
+			client.Publish(mes[0],0,mes[1])
+		}
+	}
+}
 
 /*******************************************************************************
 //@example
@@ -49,7 +67,7 @@ func (client *MQTTClient) Subscribe(topic string, qos byte){
 }
 
 /*******************************************************************************
-*    Callback Function
+*	Internal Callback Function
 *******************************************************************************/
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
     fmt.Println("Connected")
