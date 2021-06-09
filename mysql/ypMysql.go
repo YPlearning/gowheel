@@ -1,26 +1,27 @@
-package sqlite
+package mysql
 
 import (
     "database/sql"
     "fmt"
-    _ "github.com/mattn/go-sqlite3"
+    _ "github.com/go-sql-driver/mysql"
     "strings"
+	"strconv"
 )
 
-type SqliteClient struct {
+type MysqlClient struct {
 	db *sql.DB
 	IsConnect bool
 }
 
 /*******************************************************************************
 *   @example
-*   ch_sqlite := make(chan string, 10)
-*   go client.Listen(ch_sqlite)
-*   ch_sqlite <- "tablename::'value1','value2'..."
+*   ch_mysql := make(chan string, 10)
+*   go client.Listen(ch_mysql)
+*   ch_mysql <- "tablename::'value1','value2'..."
 *******************************************************************************/
-func (client *SqliteClient) Listen(ch_sqlite chan string) {
+func (client *MysqlClient) Listen(ch_mysql chan string) {
 	for true {
-		str, ok := <- ch_sqlite
+		str, ok := <- ch_mysql
 		if ok {
 			mes := strings.Split(str,"::")
             client.Insert(mes[0], []string{mes[1]})
@@ -30,12 +31,14 @@ func (client *SqliteClient) Listen(ch_sqlite chan string) {
 
 /*******************************************************************************
 *   @example
-*   var my sqlite.SqliteClient
-*   client.Open("./test.db")
+*   var client sqlite.SqliteClient
+*   client.Open("Testdb","sql123456789Server","yplearning.cn",3306,"testdb")
 *******************************************************************************/
-func (client *SqliteClient) Open(filePath string) {
+func (client *MysqlClient) Open(Username string, Password string, AddressIP string, Port int, DatabaseName string) {
 	var err error
-	client.db, err = sql.Open("sqlite3", filePath)
+	path := Username+":"+Password+"@tcp("+AddressIP+":"+strconv.Itoa(Port)+")/"+DatabaseName+"?charset=utf8"
+	//path := "Testdb:sql123456789Server@tcp(yplearning.cn:3306)/testdb?charset=utf8"
+	client.db, err = sql.Open("mysql", path)
     checkErr(err)
     client.IsConnect = true
 }
@@ -44,7 +47,7 @@ func (client *SqliteClient) Open(filePath string) {
 *   @example
 *   client.Close()
 *******************************************************************************/
-func (client *SqliteClient) Close() {
+func (client *MysqlClient) Close() {
 	client.db.Close()
     client.IsConnect = false
 }
@@ -52,9 +55,9 @@ func (client *SqliteClient) Close() {
 /*******************************************************************************
 *   @example
 *   cloumns := []string{"ID INT PRIMARY KEY NOT NULL","name TEXT NOT NULL"}
-*   client.CreateTable("test",cloumns)
+*   client.CreateTable("hello",cloumns)
 *******************************************************************************/
-func (client *SqliteClient) CreateTable(tablename string, columns []string){
+func (client *MysqlClient) CreateTable(tablename string, columns []string){
     if !client.IsConnect {
         fmt.Println("Database Disconnected!!!")
         return
@@ -77,7 +80,7 @@ func (client *SqliteClient) CreateTable(tablename string, columns []string){
 *   @example
 *   client.DeleteTable("hello")
 *******************************************************************************/
-func (client *SqliteClient) DeleteTable(tablename string) {
+func (client *MysqlClient) DeleteTable(tablename string) {
     if !client.IsConnect {
         fmt.Println("Database Disconnected!!!")
         return
@@ -91,9 +94,9 @@ func (client *SqliteClient) DeleteTable(tablename string) {
 /*******************************************************************************
 *   @example
 *   values := []string{"'111'","'aaa'"}
-*   client.Insert("test", values)
+*   client.Insert("hello", values)
 *******************************************************************************/
-func (client *SqliteClient) Insert(tablename string, values []string) int64 {
+func (client *MysqlClient) Insert(tablename string, values []string) int64 {
     if !client.IsConnect {
         fmt.Println("Database Disconnected!!!")
         return 0
@@ -122,10 +125,10 @@ func (client *SqliteClient) Insert(tablename string, values []string) int64 {
 
 /*******************************************************************************
 *   @example
-*   aa := client.Select("test", "*", "ID = 111")
+*   aa := client.Select("hello", "*", "ID = 111")
 *   fmt.Println(aa)
 *******************************************************************************/
-func (client *SqliteClient) Select(tablename string, selectColumns string, condition string) []map[string]string {
+func (client *MysqlClient) Select(tablename string, selectColumns string, condition string) []map[string]string {
     if !client.IsConnect {
         fmt.Println("Database Disconnected!!!")
         return nil
@@ -170,10 +173,10 @@ func (client *SqliteClient) Select(tablename string, selectColumns string, condi
 
 /*******************************************************************************
 *   @example
-*   aa := client.Delete("test", "ID=111")
+*   aa := client.Delete("hello", "ID=111")
 *   fmt.Println(aa)
 *******************************************************************************/
-func (client *SqliteClient) Delete(tablename string, condition string) int64 {
+func (client *MysqlClient) Delete(tablename string, condition string) int64 {
     if !client.IsConnect {
         fmt.Println("Database Disconnected!!!")
         return 0
