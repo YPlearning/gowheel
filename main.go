@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func main(){
+func main1(){
 	var my mqtt.MQTTClient
 	my.Connect("yp")
 	ch_mqtt := make(chan string, 10)
