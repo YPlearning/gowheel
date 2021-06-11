@@ -12,6 +12,7 @@ import (
 
 type Node struct{
 	NodeId int `json:"NodeId"`
+	IsMaster bool `json:"IsMaster"`
 	AddressIp string `json:"AddressIp"`
 	Port int `json:"Port"`
 }
@@ -22,10 +23,15 @@ func main(){
 	rand.Seed(time.Now().UTC().UnixNano())
 	myid := rand.Intn(99999999)
 	myport := flag.Int("p", 10000, "ip address to run this node on. default is 10000.")
+	isMaster := flag.Bool("m", false, "如果IP地址没有连接到集群中，我们将其作为Master节点.")
 	flag.Parse()
 
-	myNode := Node{myid,"127.0.0.1",*myport}
+	myNode := Node{myid,*isMaster,"127.0.0.1",*myport}
 	NodeList = make(map[int]Node)
+
+	if *isMaster {
+
+	}
 
 	ch_socket := make(chan socket.SocketMessage, 10)
 	go myNode.NodeStart(ch_socket)
@@ -51,7 +57,14 @@ func main(){
 *	{1 "Node"}
 *******************************************************************************/
 func (node *Node)NodeStart(ch_socket chan socket.SocketMessage){
-	go socket.ServerStart(10000,ch_socket)
+	//启动Socket Server和Client
+	var server socket.SocketServer
+	go server.Start(10000)
+	time.Sleep(1 * time.Second)
+	var client socket.SocketClient
+	go client.Start("127.0.0.1",10000)
+
+
 }
 
 /*******************************************************************************

@@ -7,19 +7,22 @@ import (
 )
 
 func TestSocket (t *testing.T) {
+	var server SocketServer
+	go server.Start(10000)
 
+	/*
 	ch_socket := make(chan SocketMessage, 10)
-	go ServerStart(10000,ch_socket)
+	go ServerStart(10000,ch_socket)*/
+	
 	time.Sleep(1 * time.Second)
 	
-	ch_socketin := make(chan SocketMessage, 10)
-	go ClientStart("127.0.0.1", 10000, ch_socketin)
-	
-	mes := SocketMessage{1,"hello"}
-	ch_socketin <- mes
+	var client SocketClient
+	go client.Start("127.0.0.1",10000)
+	time.Sleep(1 * time.Second)
+	fmt.Println(client)
 
-	for true {
-		smes, ok := <- ch_socket
+	for {
+		smes, ok := <- server.ch_socketout
 		if ok {
 			fmt.Println(smes)
 		}
